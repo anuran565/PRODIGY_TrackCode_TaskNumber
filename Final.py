@@ -1,0 +1,50 @@
+import pandas as pd
+import seaborn as sns
+import matplotlib.pyplot as plt
+from sklearn.cluster import KMeans
+
+try:
+    df_scaled=pd.read_csv("Scaled_Mall_Customers.csv")
+    print("The Scaled Dataset : ")
+except FileNotFoundError:
+    print("File Not Found Error.")
+
+
+optimal_k=4 
+kmeans=KMeans(n_clusters=optimal_k, random_state=42)
+df_scaled['Cluster']=kmeans.fit_predict(df_scaled)
+
+#Group Data By Cluster
+grouped_data=df_scaled.groupby('Cluster')
+
+#Calculate Descriptive Statistics for Each Cluster
+#mean(The average value of each feature within the cluster.)
+cluster_means=grouped_data.mean()
+print("Mean of each cluster : ",cluster_means)
+
+#median
+cluster_medians=grouped_data.median()
+print("Median of each cluster : ",cluster_medians)
+
+#standard deviation
+cluster_std=grouped_data.std()
+print("Standard Deviation of each cluster : ",cluster_std)
+
+#combine and present the results
+cluster_profiles=pd.concat([cluster_means,cluster_medians,cluster_std],axis=1, keys=['Mean','Median','Standard Deviation'])
+print("Cluster Profiles : ",cluster_profiles)
+
+# Corrected plotting loops:
+for feature in ['Age', 'Annual Income (k$)', 'Spending Score (1-100)', 'Gender_Male', 'Income_Spending']:  # Added space
+    plt.figure()
+    sns.barplot(x='Cluster', y=feature, data=df_scaled)
+    plt.title(f'Mean {feature} by Cluster')
+    plt.ylabel(feature)
+    plt.show()
+
+for feature in ['Age', 'Annual Income (k$)', 'Spending Score (1-100)', 'Gender_Male', 'Income_Spending']:  # Added space
+    plt.figure()
+    sns.boxplot(x='Cluster', y=feature, data=df_scaled)
+    plt.title(f'Distribution of {feature} by Cluster')
+    plt.ylabel(feature)
+    plt.show()
